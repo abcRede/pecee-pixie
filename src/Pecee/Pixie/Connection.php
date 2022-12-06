@@ -126,6 +126,7 @@ class Connection
      */
     public function getPdoInstance(): \PDO
     {
+        $this->connect();
         return $this->pdoInstance;
     }
 
