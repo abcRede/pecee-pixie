@@ -9,6 +9,7 @@ use Pecee\Pixie\Exception;
 use Pecee\Pixie\Exceptions\ColumnNotFoundException;
 use Pecee\Pixie\Exceptions\ConnectionException;
 use Pecee\Pixie\Exceptions\TransactionHaltException;
+use Pecee\Pixie\Exceptions\RecordNotFoundException;
 
 /**
  * Class QueryBuilderHandler
@@ -167,7 +168,6 @@ class QueryBuilderHandler implements IQueryBuilderHandler
                         }
                     }
                 }
-
             }
             if ($statement[$key] === $value) {
                 unset($this->statements[$type][$index]);
@@ -274,7 +274,7 @@ class QueryBuilderHandler implements IQueryBuilderHandler
      * @throws \Pecee\Pixie\Exceptions\ForeignKeyException
      * @throws \Pecee\Pixie\Exceptions\NotNullException
      * @throws \Pecee\Pixie\Exceptions\TableNotFoundException
-     * @return \stdClass|string|null
+     * @return mixed
      * @throws Exception
      */
     public function first()
@@ -282,6 +282,34 @@ class QueryBuilderHandler implements IQueryBuilderHandler
         $result = $this->limit(1)->get();
 
         return (\count($result) !== 0) ? $result[0] : null;
+    }
+
+    /**
+     * Returns the first row. Throws a RecordNotFoundException if 
+     * the record is not found.  
+     *
+     * @throws \Pecee\Pixie\Exception
+     * @throws \Pecee\Pixie\Exceptions\ColumnNotFoundException
+     * @throws \Pecee\Pixie\Exceptions\ConnectionException
+     * @throws \Pecee\Pixie\Exceptions\DuplicateColumnException
+     * @throws \Pecee\Pixie\Exceptions\DuplicateEntryException
+     * @throws \Pecee\Pixie\Exceptions\DuplicateKeyException
+     * @throws \Pecee\Pixie\Exceptions\ForeignKeyException
+     * @throws \Pecee\Pixie\Exceptions\NotNullException
+     * @throws \Pecee\Pixie\Exceptions\TableNotFoundException
+     * @throws \Pecee\Pixie\Exceptions\RecordNotFoundException
+     * @return mixed
+     * @throws Exception
+     */
+    public function firstOrFail()
+    {
+        $result = $this->first();
+
+        if ($result === null) {
+            throw new RecordNotFoundException();
+        }
+
+        return $result;
     }
 
     /**
@@ -847,7 +875,7 @@ class QueryBuilderHandler implements IQueryBuilderHandler
     /**
      * Forms delete on the current query.
      *
-     * @var array|null $columns
+     * @param array|null $columns
      *
      * @throws \Pecee\Pixie\Exception
      * @throws \Pecee\Pixie\Exceptions\ColumnNotFoundException
@@ -892,12 +920,43 @@ class QueryBuilderHandler implements IQueryBuilderHandler
      * @throws \Pecee\Pixie\Exceptions\ForeignKeyException
      * @throws \Pecee\Pixie\Exceptions\NotNullException
      * @throws \Pecee\Pixie\Exceptions\TableNotFoundException
-     * @return \stdClass|string|null
+     * @return mixed
      * @throws Exception
      */
     public function find($value, string $fieldName = 'id')
     {
         return $this->where($fieldName, '=', $value)->first();
+    }
+
+    /**
+     * Find by value and field name. Throws a RecordNotFoundException
+     * if the record is not found
+     *
+     * @param string|int|float $value
+     * @param string           $fieldName
+     *
+     * @throws \Pecee\Pixie\Exception
+     * @throws \Pecee\Pixie\Exceptions\ColumnNotFoundException
+     * @throws \Pecee\Pixie\Exceptions\ConnectionException
+     * @throws \Pecee\Pixie\Exceptions\DuplicateColumnException
+     * @throws \Pecee\Pixie\Exceptions\DuplicateEntryException
+     * @throws \Pecee\Pixie\Exceptions\DuplicateKeyException
+     * @throws \Pecee\Pixie\Exceptions\ForeignKeyException
+     * @throws \Pecee\Pixie\Exceptions\NotNullException
+     * @throws \Pecee\Pixie\Exceptions\TableNotFoundException
+     * @throws \Pecee\Pixie\Exceptions\RecordNotFoundException
+     * @return mixed
+     * @throws Exception
+     */
+    public function findOrFail($value, string $fieldName = 'id')
+    {
+        $result = $this->find($value, $fieldName);
+
+        if ($result === null) {
+            throw new RecordNotFoundException();
+        }
+
+        return $result;
     }
 
     /**
@@ -964,6 +1023,36 @@ class QueryBuilderHandler implements IQueryBuilderHandler
     public function findAll(string $fieldName, $value): array
     {
         return $this->where($fieldName, '=', $value)->get();
+    }
+
+    /**
+     * Find all by field name and value
+     *
+     * @param string           $fieldName
+     * @param string|int|float $value
+     *
+     * @throws \Pecee\Pixie\Exception
+     * @throws \Pecee\Pixie\Exceptions\ColumnNotFoundException
+     * @throws \Pecee\Pixie\Exceptions\ConnectionException
+     * @throws \Pecee\Pixie\Exceptions\DuplicateColumnException
+     * @throws \Pecee\Pixie\Exceptions\DuplicateEntryException
+     * @throws \Pecee\Pixie\Exceptions\DuplicateKeyException
+     * @throws \Pecee\Pixie\Exceptions\ForeignKeyException
+     * @throws \Pecee\Pixie\Exceptions\NotNullException
+     * @throws \Pecee\Pixie\Exceptions\TableNotFoundException
+     * @throws \Pecee\Pixie\Exceptions\RecordNotFoundException
+     * @return array
+     * @throws Exception
+     */
+    public function findAllOrFail(string $fieldName, $value): array
+    {
+        $result = $this->findAll($fieldName, $value);
+
+        if (count($result) === 0) {
+            throw new RecordNotFoundException();
+        }
+
+        return $result;
     }
 
     /**
@@ -1125,7 +1214,6 @@ class QueryBuilderHandler implements IQueryBuilderHandler
      * @return array|string|null
      * @throws Exception
      */
-    private function doInsert(array $data, string $type)
     protected function doInsert(array $data, string $type)
     {
         // Insert single item
@@ -1197,12 +1285,10 @@ class QueryBuilderHandler implements IQueryBuilderHandler
 
             // If no errors have been thrown or the transaction wasn't completed within the closure, commit the changes
             $this->pdo()->commit();
-
         } catch (TransactionHaltException $e) {
 
             // Commit or rollback behavior has been triggered in the closure
             return $queryTransaction;
-
         } catch (\Exception $e) {
 
             // Something went wrong. Rollback and throw Exception
@@ -1670,6 +1756,58 @@ class QueryBuilderHandler implements IQueryBuilderHandler
     }
 
     /**
+     * Update or insert key/value array
+     * 
+     * This method is a shorthand for inserting or updating a record. Unlike updateOrInsert() method, it will not 
+     * perform any additional query to the database, instead it will perform an update only if the key is present 
+     * on data array and it's not NULL, otherwise an insert will be performed. 
+     * 
+     * You can pass more than one key column in case of tables that have composite keys.
+     * 
+     * You cannot insert a row using a specific ID using this method, as it will try to update the record instead.
+     * 
+     * If no key is supplied, the default 'id' will be used.
+     *
+     * @param array $data
+     * @param string ...$key Default: 'id'
+     *
+     * @throws \Pecee\Pixie\Exception
+     * @throws \Pecee\Pixie\Exceptions\ColumnNotFoundException
+     * @throws \Pecee\Pixie\Exceptions\ConnectionException
+     * @throws \Pecee\Pixie\Exceptions\DuplicateColumnException
+     * @throws \Pecee\Pixie\Exceptions\DuplicateEntryException
+     * @throws \Pecee\Pixie\Exceptions\DuplicateKeyException
+     * @throws \Pecee\Pixie\Exceptions\ForeignKeyException
+     * @throws \Pecee\Pixie\Exceptions\NotNullException
+     * @throws \Pecee\Pixie\Exceptions\TableNotFoundException
+     * @return array|string Inserted / Updated IDs
+     */
+    public function save(array $data, ?string ...$keys)
+    {
+        if (count($keys) === 0) {
+            $keys[] = 'id';
+        }
+
+        $pk_values = array_filter($data, fn ($value, $key) => in_array($key, $keys) && $value !== null, ARRAY_FILTER_USE_BOTH);
+
+        if (count($keys) === count($pk_values)) {
+            $data_to_update = array_diff_key($data, $pk_values);
+            array_walk($pk_values, fn ($value, $key) => $this->where($key, "=", $value));
+            $this->update($data_to_update);
+
+            $ids = array_values($pk_values);
+
+            if (count($ids) === 1) {
+                return $ids[0];
+            }
+
+            return $ids;
+        }
+
+        return $this->insert($data);
+    }
+
+    /**
      * Update key/value array
      *
      * @param array $data
@@ -1822,6 +1960,16 @@ class QueryBuilderHandler implements IQueryBuilderHandler
         return $this;
     }
 
+
+    public function lockForUpdate(bool $lockForUpdate): self
+    {
+        if ($lockForUpdate) {
+            $this->for("update");
+        }
+
+        return $this;
+    }
+
     /**
      * Returns all columns in current query
      *
@@ -1883,5 +2031,4 @@ class QueryBuilderHandler implements IQueryBuilderHandler
         $this->pdoStatement = null;
         $this->connection = null;
     }
-
 }
