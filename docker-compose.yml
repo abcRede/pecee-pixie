@@ -1,0 +1,45 @@
+version: '2'
+
+networks:
+  pecee_pixie_network:
+    name: pecee_pixie_network
+
+services:
+  pecee_pixie_php:
+    tty: true
+    user: ${UID-1000}:${GID-1000}
+    networks:
+      - pecee_pixie_network
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    container_name: container_pecee_pixie_php
+    working_dir: "/app"
+    command: bash -c "composer install && php -a"
+    volumes:
+      - .:/app
+      - ./docker/php/php.ini:/opt/bitnami/php/etc/conf.d/custom.ini
+      - ./docker/php/z-php-fpm.conf:/opt/bitnami/php/etc/php-fpm.d/z-php-fpm.conf
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    expose:
+      - 9003 # xdebug
+
+  pecee_pixie_mysql:
+    tty: true
+    user: ${UID-1000}:${GID-1000}
+    command: --user ${UID-1000}:${GID-1000}
+    container_name: container_pecee_pixie_mysql
+    networks:
+      - pecee_pixie_network
+    image: 'mysql:latest'
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_CHARACTER_SET=utf8mb4
+      - MYSQL_COLLATE=utf8mb4_unicode_ci
+      - MYSQL_DATABASE=test
+      - MYSQL_AUTHENTICATION_PLUGIN=mysql_native_password
+    ports:
+      - '33066:3306'
+    volumes:
+      - ./docker/mysql-data:/var/lib/mysql
