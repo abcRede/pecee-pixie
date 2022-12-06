@@ -8,6 +8,7 @@ use Pecee\Pixie\Exceptions\DuplicateEntryException;
 use Pecee\Pixie\Exceptions\ForeignKeyException;
 use Pecee\Pixie\Exceptions\NotNullException;
 use Pecee\Pixie\Exceptions\TableNotFoundException;
+use Pecee\Pixie\Exceptions\TransactionException;
 
 class CustomExceptionsTest extends TestCase
 {
@@ -54,7 +55,7 @@ class CustomExceptionsTest extends TestCase
         try {
             (new \Pecee\Pixie\Connection('mysql', [
                 'driver'    => 'mysql',
-                'host'      => '127.0.0.1',
+                'host'      => 'pecee_pixie_mysql',
                 'database'  => 'db',
                 'username'  => 'nonexisting',
                 'password'  => 'password',
@@ -71,7 +72,7 @@ class CustomExceptionsTest extends TestCase
         try {
             (new \Pecee\Pixie\Connection('mysql', [
                 'driver'    => 'mysql',
-                'host'      => '127.0.0.1',
+                'host'      => 'pecee_pixie_mysql',
                 'database'  => 'test',
                 'username'  => 'nopermuser',
                 'password'  => 'nope',
@@ -248,6 +249,31 @@ class CustomExceptionsTest extends TestCase
             throw new \RuntimeException('check');
         } catch (\Exception $e) {
             $this->validateException($e, NotNullException::class, 1);
+        }
+    }
+
+    public function testTransactionExceptions(){
+        $connection = $this->getLiveConnection()->getConnection();
+        try {
+            $connection->beginTransaction();
+            $connection->beginTransaction();
+        }
+        catch(\Exception $e){
+            $this->assertEquals(TransactionException::class, \get_class($e));
+        }
+
+        try {
+            $connection->commit();
+        }
+        catch(\Exception $e){
+            $this->assertEquals(TransactionException::class, \get_class($e));
+        }
+
+        try {
+            $connection->rollBack();
+        }
+        catch(\Exception $e){
+            $this->assertEquals(TransactionException::class, \get_class($e));
         }
     }
 

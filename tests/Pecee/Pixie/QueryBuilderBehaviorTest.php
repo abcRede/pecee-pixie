@@ -3,6 +3,7 @@
 namespace Pecee\Pixie;
 
 use Pecee\Pixie\Event\EventArguments;
+use Pecee\Pixie\Exceptions\RecordNotFoundException;
 use Pecee\Pixie\QueryBuilder\JoinBuilder;
 
 /**
@@ -10,7 +11,7 @@ use Pecee\Pixie\QueryBuilder\JoinBuilder;
  *
  * @package Pecee\Pixie
  */
-class QueryBuilderTest extends TestCase
+class QueryBuilderBehaviorTest extends TestCase
 {
     /**
      * Test alias
@@ -248,6 +249,52 @@ class QueryBuilderTest extends TestCase
         $this->assertEquals("SELECT DISTINCT `surname`, `name`, `birthday`, `address` FROM `cb_my_table`", $query->getQuery()->getRawSql());
     }
 
+    public function testFindOrFail()
+    {
+        $result = $this->getLiveConnection()->table("people")->findOrFail(1);
+        $this->assertEquals("Simon", $result->name);
+
+        try {
+            $result = $this->getLiveConnection()->table("empty_table")->findOrFail(9);
+            $this->assertEquals(1, 2); // this should never happen
+            
+        }
+        catch(\Exception $ex){
+            $this->assertEquals(RecordNotFoundException::class, \get_class($ex));
+        }
+    }
+
+    public function testFirstOrFail()
+    {
+        $result = $this->getLiveConnection()->table("animal")->firstOrFail();
+        $this->assertEquals("mouse", $result->name);
+
+        try {
+            $result = $this->getLiveConnection()->table("empty_table")->firstOrFail();
+            $this->assertEquals(1, 2); // this should never happen
+            
+        }
+        catch(\Exception $ex){
+            $this->assertEquals(RecordNotFoundException::class, \get_class($ex));
+        }
+    }
+
+    public function testFindAllOrFail()
+    {
+        $result = $this->getLiveConnection()->table("animal")->findAllOrFail('name', 'mouse');
+
+        $this->assertEquals(1, count($result));
+
+        try {
+            $result = $this->getLiveConnection()->table("empty_table")->findAllOrFail('description', 'test');
+            $this->assertEquals(1, 2); // this should never happen
+            
+        }
+        catch(\Exception $ex){
+            $this->assertEquals(RecordNotFoundException::class, \get_class($ex));
+        }
+    }
+
     public function testSelectDistinctWithSingleColumn()
     {
         $query = $this->builder->selectDistinct('name')->from('my_table');
@@ -469,6 +516,49 @@ class QueryBuilderTest extends TestCase
 
         $this->assertEquals('SELECT * FROM `cb_user` JOIN `cb_user_data` USING (`user_id`, `image_id`) WHERE `user_id` = 1', $query->getQuery()->getRawSql());
 
+    }
+
+
+    public function testSaveMethod()
+    {
+        $qb = $this->getLiveConnection();
+
+        $qb->statement("TRUNCATE TABLE people");
+
+        $data_first = [
+            'name'     => 'RFC',
+            'age'      => 27,
+            'awesome'  => false,
+            'nickname' => 'dev-rfc',
+        ];
+
+        $data_second = [
+            'name'     => 'Another one',
+            'age'      => 22,
+            'awesome'  => true,
+            'nickname' => 'another-one',
+        ];
+
+        $inserted_first_id = $qb->table('people')->save($data_first);
+        $data_first["id"] = $inserted_first_id;
+        $data_first["awesome"] = true;
+        $updated_first = $qb->table('people')->save($data_first);
+        $rfc = $qb->table('people')->findOrFail($inserted_first_id);
+
+        // emulate composite key
+        $inserted_second_id = $qb->table('people')->save($data_second, 'name', 'id');
+        $data_second["id"] = $inserted_second_id;
+        $data_second["awesome"] = false;
+        $updated_second = $qb->table('people')->save($data_second, 'name', 'id');
+        $another_one = $qb->table('people')->findOrFail($inserted_second_id);
+    
+        $this->assertEquals(1, $inserted_first_id);
+        $this->assertEquals(true, $rfc->awesome);
+        $this->assertEquals($updated_first, $inserted_first_id);
+
+        $this->assertEquals(2, $inserted_second_id);
+        $this->assertEquals(false, $another_one->awesome);
+        $this->assertEquals($updated_second, ['Another one', $inserted_second_id]);
     }
 
 }
