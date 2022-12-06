@@ -8,7 +8,7 @@ The syntax is similar to Laravel's query builder "Eloquent", but with less overh
 This library is stable, maintained and are used by sites around the world (check the [credits](#credits)).
 
 **Requirements:**
-- PHP version 7.1 or higher is required for pecee-pixie version 4.x and above (versions prior to 4.x are available [here](https://github.com/skipperbent/pixie)).
+- PHP version 7.4 or higher is required for pecee-pixie version 4.x and above (versions prior to 4.x are available [here](https://github.com/skipperbent/pixie)).
 - PDO extension enabled.
 
 **Features:**
@@ -94,9 +94,6 @@ ___
 ## Table of Contents
 
  - [Installation](#installation)
- - [Feedback and development](#feedback-and-development)
-    - [Issues guidelines](#issues-guidelines)
-    - [Contribution and development guidelines](#contribution-and-development-guidelines)
  - [Connecting to the database](#connecting-to-the-database)
     - [SQLite and PostgreSQL config example](#sqlite-and-postgresql-config-example)
  - [**Select**](#select)
@@ -134,6 +131,8 @@ ___
     - [Batch insert](#batch-insert)
     - [Insert with ON DUPLICATE KEY statement](#insert-with-on-duplicate-key-statement)
  - [**Update**](#update)
+    - [Update or Insert](#update-or-insert)
+ - [**Save**](#save)
  - [**Delete**](#delete)
  - [Transactions](#transactions)
  - [Get raw query](#get-built-query)
@@ -151,6 +150,10 @@ ___
     - [Notes](#notes)
  - [Exceptions](#exceptions)
     - [Getting sql-query from exceptions](#getting-sql-query-from-exceptions)
+ - [Feedback and development](#feedback-and-development)
+    - [Issues guidelines](#issues-guidelines)
+    - [Contribution and development guidelines](#contribution-and-development-guidelines)
+    - [Docker](#docker)
  - [Credits](#credits)
 
 ___
@@ -164,31 +167,6 @@ Learn to use composer and add this to require section (in your composer.json):
 ```
 composer install pecee/pixie
 ```
-
-## Feedback and development
-
-If you are missing a feature, experience problems or have ideas or feedback that you want us to hear, please feel free to create an issue.
-
-#### Issues guidelines
-
-- Please be as detailed as possible in the description when creating a new issue. This will help others to more easily understand- and solve your issue. For example: if you are experiencing issues, you should provide the necessary steps to reproduce the error within your description.
-
-- We love to hear out any ideas or feedback to the library.
-
-[Create a new issue here](https://github.com/skipperbent/pecee-pixie/issues)
-
-#### Contribution and development guidelines
-
-- Please try to follow the PSR-2 codestyle guidelines.
-
-- Please create your pull requests to the development base that matches the version number you want to change.
-For example when pushing changes to version 3, the pull request should use the `v3-development` base/branch.
-
-- Create detailed descriptions for your commits, as these will be used in the changelog for new releases.
-
-- When changing existing functionality, please ensure that the unit-tests working.
-
-- When adding new stuff, please remember to add new unit-tests for the functionality.
 
 ## Connecting to the database
 Pixie supports three database drivers, MySQL, SQLite and PostgreSQL.
@@ -317,6 +295,30 @@ $result = $queryBuilder
             ->findAll('name', 'Sana');
 ```
 
+#### Required result
+
+You can use `findOrFail()` and `findAllOrFail` instead to thrown a `RecordNotFoundException` when no record is found.
+
+```php
+try {
+    return $queryBuilder
+        ->table('users')
+        ->findOrFail(3);
+} catch(\Pecee\Pixie\Exceptions\RecordNotFoundException $ex) {
+    // record not found
+}
+```
+
+```php
+try {
+    return $queryBuilder
+        ->table('users')
+        ->findAllOrFail('name', 'Sana');
+} catch(\Pecee\Pixie\Exceptions\RecordNotFoundException $ex) {
+    // record not found
+}
+```
+
 #### Multiple selects
 
 ```php
@@ -393,6 +395,19 @@ $row = $queryBuilder
             ->first();
 ```
 Returns the first row, or null if there is no record. Using this method you can also make sure if a record exists. Access these like `echo $row->name`.
+
+You can also use `firstOrFail()` to thrown an exception when no record is found.
+
+```php
+try {
+    return $queryBuilder
+        ->table('my_table')
+        ->where('name', '=', 'Sana')
+        ->firstOrFail();
+} catch(\Pecee\Pixie\Exceptions\RecordNotFoundException $ex) {
+    // record not found
+}
+```
 
 #### Aggregate methods
 
@@ -805,6 +820,8 @@ $insertId =
         ->insert($data);
 ```
 
+Will perform an ``ON DUPLICATE KEY UPDATE``. trying to insert ``$data`` array, if there's a duplicated key, the row will be updated using ``$dataUpdate`` array. Beware that this exception can also be raised if you have more than 1 ``UNIQUE`` column in your table.
+
 ### Update
 
 ```php
@@ -820,6 +837,68 @@ $queryBuilder
 ```
 
 Will update the name field to Sana and description field to Blah where id = 5.
+
+#### Update or Insert
+
+```php
+$data = [
+    'id'          => 3,
+    'name'        => 'Sana',
+    'description' => 'Blah'
+];
+
+$queryBuilder
+    ->table('my_table')
+    ->where('id', '=', $data['id'])
+    ->updateOrInsert($data);
+```
+
+Similar to ON DUPLICATE KEY statement, except it will perform a select first, and if no row is returned, will perform an insert, otherwise an update will be executed.
+
+### Save
+
+This method is a shorthand for inserting or updating a row. Unlike updateOrInsert(), it will not perform any additional query to the database, instead it will perform an update only if the key is present on data array and it's not NULL, otherwise an insert will be performed.
+
+```php
+    // insert
+    $queryBuilder
+        ->table('developers')
+        ->save([
+            'nickname' => 'dev-rfc',
+        ]);
+
+    // update
+    $queryBuilder
+        ->table('developers')
+        ->save([
+            'id' => 1
+            'nickname' => 'another-one',
+        ]);
+
+    // update with custom key
+    $queryBuilder
+        ->table('developers')
+        ->save([
+            'my_custom_key' => 1
+            'nickname' => 'another-one',
+        ], 'my_custom_key');
+```
+
+You can pass more than one key column in case of tables that have composite keys.
+ 
+```php
+    // update with custom key
+    $queryBuilder
+        ->table('developers')
+        ->save([
+            'my_custom_key_one' => 1,
+            'my_custom_key_two' => 4
+            'nickname' => 'another-one',
+        ], 'my_custom_key', 'my_custom_two');
+```
+You cannot insert a row using a specific ID using this method, as it will try to update the record instead.
+ 
+If no key is supplied, the default 'id' will be used.
 
 ### Delete
 
@@ -1213,10 +1292,13 @@ Here are some cases where Query Events can be extremely helpful:
  | `ConnectionException`      |
  | `DuplicateColumnException` |
  | `DuplicateEntryException`  |
+ | `DuplicateKeyException`    |
  | `ForeignKeyException`      |
  | `NotNullException`         |
+ | `RecordNotFoundException`  |
  | `TableNotFoundException`   |
- | `Exception`                |
+ | `TransactionException`     |
+ | `TransactionHaltException` |
 
 #### Getting sql-query from exceptions
 
@@ -1228,6 +1310,45 @@ You can retrieve the `QueryObject` by calling
 ```php
 $sql = $exception->getQueryObject()->getRawSql();
 ```
+
+## Feedback and development
+
+If you are missing a feature, experience problems or have ideas or feedback that you want us to hear, please feel free to create an issue.
+
+#### Issues guidelines
+
+- Please be as detailed as possible in the description when creating a new issue. This will help others to more easily understand- and solve your issue. For example: if you are experiencing issues, you should provide the necessary steps to reproduce the error within your description.
+
+- We love to hear out any ideas or feedback to the library.
+
+[Create a new issue here](https://github.com/skipperbent/pecee-pixie/issues)
+
+#### Contribution and development guidelines
+
+- Please try to follow the PSR-2 codestyle guidelines.
+
+- Please create your pull requests to the development base that matches the version number you want to change.
+For example when pushing changes to version 3, the pull request should use the `v3-development` base/branch.
+
+- Create detailed descriptions for your commits, as these will be used in the changelog for new releases.
+
+- When changing existing functionality, please ensure that the unit-tests working.
+
+- When adding new stuff, please remember to add new unit-tests for the functionality.
+
+#### Docker
+
+This package provides a Docker file containing both MySQL and PHP. It also provides already configured Visual Studio Code settings for using the containers and XDebug.
+
+To start the containers, just execute the ``docker-compose up -d`` command.
+
+After the containers are up, you can run unit-tests using vscode with the PHPUnit extension (recommended), or running PHPUnit manually.
+
+```bash
+docker-compose run --rm pecee_pixie_php /app/vendor/bin/phpunit --colors=always -c /app/phpunit.xml --testsuite 'Pixie Test Suite'
+```
+
+To stop the containers, run ``docker-compose down``
 
 ## Credits
 
