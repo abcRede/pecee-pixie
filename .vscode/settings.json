@@ -1,0 +1,8 @@
+{
+  "editor.tabSize": 4,
+  "phpunit.command": "docker-compose run --rm pecee_pixie_php",
+  "phpunit.phpunit": "/app/vendor/bin/phpunit",
+  "phpunit.paths": {
+    "${workspaceFolder}/": "/app/",
+  },
+}

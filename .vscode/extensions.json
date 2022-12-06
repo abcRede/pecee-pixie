@@ -1,0 +1,14 @@
+{
+	"recommendations": [
+		"xdebug.php-debug",
+		"ms-azuretools.vscode-docker",
+		"ms-vscode-remote.remote-containers",
+		"ms-vscode-remote.vscode-remote-extensionpack",
+		"emallin.phpunit",
+		"damianbal.php-class-generator-composer-psr-4",
+		"bmewburn.vscode-intelephense-client"
+	],
+	"unwantedRecommendations": [
+		"vscode.php-language-features"
+	]
+}
