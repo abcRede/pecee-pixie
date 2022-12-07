@@ -1764,7 +1764,7 @@ class QueryBuilderHandler implements IQueryBuilderHandler
      * If no key is supplied, the default 'id' will be used.
      *
      * @param array $data
-     * @param string ...$key Default: 'id'
+     * @param string ...$keys Default: 'id'
      *
      * @throws \Pecee\Pixie\Exception
      * @throws \Pecee\Pixie\Exceptions\ColumnNotFoundException
@@ -1783,7 +1783,7 @@ class QueryBuilderHandler implements IQueryBuilderHandler
             $keys[] = 'id';
         }
 
-        $pk_values = array_filter($data, fn ($value, $key) => in_array($key, $keys) && $value !== null, ARRAY_FILTER_USE_BOTH);
+        $pk_values = array_filter($data, fn ($value, $key) => in_array($key, $keys, true) && $value !== null, ARRAY_FILTER_USE_BOTH);
 
         if (count($keys) === count($pk_values)) {
             $data_to_update = array_diff_key($data, $pk_values);
