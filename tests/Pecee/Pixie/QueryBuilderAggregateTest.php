@@ -75,6 +75,6 @@ class QueryBuilderAggregateTest extends TestCase
 
         $count = $qb->from('animal')->select('number_of_legs')->groupBy('number_of_legs')->average('number_of_legs');
 
-        $this->assertEquals(13.3333333333333, $count);
+        $this->assertEquals(13, round($count));
     }
 }
