@@ -136,7 +136,6 @@ abstract class BaseAdapter
         $bindings = [[]];
 
         foreach (array_values($statements) as $i => $statement) {
-
             if ($i === 0 && isset($statement['condition'])) {
                 $criteria[] = $statement['condition'];
             }
@@ -172,7 +171,6 @@ abstract class BaseAdapter
             }
 
             if ($value === null && $key instanceof \Closure) {
-
                 /**
                  * We have a closure, a nested criteria
                  * Build a new NestedCriteria class, keep it by reference so any changes made in the closure should reflect here
@@ -196,7 +194,6 @@ abstract class BaseAdapter
             }
 
             if (\is_array($value) === true) {
-
                 // Where in or between like query
                 $criteria[] = "$key {$statement['operator']}";
 
@@ -220,7 +217,6 @@ abstract class BaseAdapter
             }
 
             if ($bindValues === false || $value instanceof Raw) {
-
                 // Usual where like criteria specially for joins - we are not binding values, lets sanitize then
                 $value = ($bindValues === false) ? $this->wrapSanitizer($value) : $value;
                 $criteria[] = "{$key} {$statement['operator']} $value";
@@ -233,7 +229,6 @@ abstract class BaseAdapter
             }
 
             if ($key instanceof Raw) {
-
                 if ($statement['operator'] !== null) {
                     $criteria[] = "{$key} {$statement['operator']} ?";
                     $bindings[] = [$value];
@@ -242,7 +237,6 @@ abstract class BaseAdapter
 
                 $criteria[] = $key;
                 continue;
-
             }
 
             // Check for objects that implement the __toString() magic method
@@ -459,7 +453,6 @@ abstract class BaseAdapter
         ];
 
         if (isset($statements['onduplicate']) === true) {
-
             if (\count($statements['onduplicate']) < 1) {
                 throw new Exception('No data given.', 4);
             }
@@ -467,7 +460,6 @@ abstract class BaseAdapter
             [$updateStatement, $updateBindings] = $this->getUpdateStatement($statements['onduplicate']);
             $sqlArray[] = 'ON DUPLICATE KEY UPDATE ' . $updateStatement;
             $bindings = array_merge($bindings, $updateBindings);
-
         }
 
         $sql = $this->concatenateQuery($sqlArray);
@@ -488,7 +480,6 @@ abstract class BaseAdapter
         $statements = [];
 
         foreach ($data as $key => $value) {
-
             $statement = $this->wrapSanitizer($key) . ' = ';
 
             if ($value instanceof Raw) {
@@ -566,7 +557,6 @@ abstract class BaseAdapter
             } else {
                 $statements['selects'] = $statements['distincts'];
             }
-
         } else {
             if (isset($statements['selects']) === false) {
                 $statements['selects'] = ['*'];

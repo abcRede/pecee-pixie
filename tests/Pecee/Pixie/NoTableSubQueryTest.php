@@ -18,5 +18,4 @@ class NoTableSubQueryTest extends TestCase
 
         $this->assertEquals('SELECT (SELECT COUNT(*) FROM `cb_mail`) AS `row1`, (SELECT COUNT(*) FROM `cb_event_message`) AS `row2` LIMIT 1', $count);
     }
-
 }

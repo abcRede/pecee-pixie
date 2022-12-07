@@ -45,7 +45,6 @@ class TestCase extends \PHPUnit\Framework\TestCase
 
     public function setUp(): void
     {
-
         $this->mockPdoStatement = $this->getMockBuilder(\PDOStatement::class)->getMock();
         $mockPdoStatement = &$this->mockPdoStatement;
         $mockPdoStatement->bindings = [];
@@ -113,7 +112,8 @@ class TestCase extends \PHPUnit\Framework\TestCase
      * @return \Pecee\Pixie\QueryBuilder\QueryBuilderHandler
      * @throws \Pecee\Pixie\Exception
      */
-    public function getLiveConnection() {
+    public function getLiveConnection()
+    {
         $connection = new \Pecee\Pixie\Connection('mysql', [
             'driver'    => 'mysql',
             'host'      => 'pecee_pixie_mysql',
@@ -138,7 +138,8 @@ class TestCase extends \PHPUnit\Framework\TestCase
      * @return \Pecee\Pixie\QueryBuilder\QueryBuilderHandler
      * @throws \Pecee\Pixie\Exception
      */
-    public function getLiveConnectionSqlite() {
+    public function getLiveConnectionSqlite()
+    {
         $connection = new \Pecee\Pixie\Connection('sqlite', [
             'driver'   => 'sqlite',
             'database' => ':memory:',
@@ -150,7 +151,6 @@ class TestCase extends \PHPUnit\Framework\TestCase
         $qb->pdo()->exec(file_get_contents(__DIR__.'/db_sqlite.sql'));
         $qb->pdo()->exec(file_get_contents(__DIR__.'/db_values.sql'));
         return $qb->newQuery();
-
     }
 
     public function tearDown(): void
@@ -171,6 +171,5 @@ class MockPdo extends \PDO
      */
     public function __construct()
     {
-
     }
 }

@@ -11,7 +11,6 @@ use Pecee\Pixie\QueryBuilder\Transaction;
  */
 class TransactionTest extends TestCase
 {
-
     public function setUp(): void
     {
         $this->builder = $this->getLiveConnection();
@@ -19,13 +18,11 @@ class TransactionTest extends TestCase
 
     public function testTransactionResult()
     {
-
         $this->builder->statement('TRUNCATE `people`');
 
         $ids = [];
 
         $this->builder->transaction(function (Transaction $q) use (&$ids) {
-
             $ids = $q->table('people')->insert([
                 [
                     'name'     => 'Simon',
@@ -46,7 +43,6 @@ class TransactionTest extends TestCase
                     'nickname' => 'peter',
                 ],
             ]);
-
         });
 
         $this->assertEquals(1, $ids[0]);
@@ -54,7 +50,6 @@ class TransactionTest extends TestCase
         $this->assertEquals(3, $ids[2]);
 
         $this->assertEquals($this->builder->table('people')->count(), 3);
-
     }
 
     /**
@@ -62,7 +57,6 @@ class TransactionTest extends TestCase
      */
     public function testNestedTransactions()
     {
-
         $this->builder->statement('TRUNCATE `people`; TRUNCATE `animal`');
 
         function getAnimals()
@@ -100,33 +94,26 @@ class TransactionTest extends TestCase
         }
 
         $this->builder->transaction(function (Transaction $qb) {
-
             function firstTrans(Transaction $oQuery)
             {
-
                 $oQuery->transaction(function (Transaction $qb) {
-
                     $qb->table('animal')->insert([
                         getAnimals(),
                     ]);
-
                 });
             }
 
             function secondTrans(Transaction $oQuery)
             {
                 $oQuery->transaction(function (\Pecee\Pixie\QueryBuilder\Transaction $qb) {
-
                     $qb->table('people')->insert([
                         getPersons(),
                     ]);
-
                 });
             }
 
             firstTrans($qb);
             secondTrans($qb);
-
         });
 
         $animals = $this->builder->table('animal')->select(['name', 'number_of_legs'])->get();
@@ -183,5 +170,4 @@ class TransactionTest extends TestCase
 
         $this->assertEquals($this->builder->getLastQuery()->getRawSql(), 'SELECT * FROM `animal` WHERE `name` = 2');
     }
-
 }

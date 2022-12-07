@@ -39,7 +39,6 @@ class Pgsql extends BaseAdapter
         }
 
         try {
-
             $connection = new PDO($connectionString, $config['username'], $config['password'], $config['options']);
 
             if (isset($config['charset']) === true) {
@@ -49,7 +48,6 @@ class Pgsql extends BaseAdapter
             if (isset($config['schema']) === true) {
                 $connection->prepare("SET search_path TO '{$config['schema']}'")->execute();
             }
-
         } catch (\PDOException $e) {
             throw Exception::create($e, $this->getQueryAdapterClass());
         }

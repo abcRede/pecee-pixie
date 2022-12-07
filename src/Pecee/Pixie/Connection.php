@@ -16,7 +16,6 @@ use Pecee\Pixie\QueryBuilder\QueryObject;
  */
 class Connection
 {
-
     /**
      * @var Connection|null
      */
@@ -225,21 +224,21 @@ class Connection
 
     /**
      * Initiates a transaction
-     * 
-     * Turns off autocommit mode. While autocommit mode is turned off, changes made 
-     * to the database via the PDO object instance are not committed 
+     *
+     * Turns off autocommit mode. While autocommit mode is turned off, changes made
+     * to the database via the PDO object instance are not committed
      * until you end the transaction by calling commit().
-     * 
-     * Calling rollBack() will roll back all changes to the database and return the 
-     * connection to autocommit mode.Some databases automatically issue an implicit 
+     *
+     * Calling rollBack() will roll back all changes to the database and return the
+     * connection to autocommit mode.Some databases automatically issue an implicit
      * COMMIT when a database definition language (DDL) statement such as DROP TABLE
-     * or CREATE TABLE is issued within a transaction. The implicit COMMIT will 
+     * or CREATE TABLE is issued within a transaction. The implicit COMMIT will
      * prevent you from rolling back any other changes within the transaction boundary
-     * 
-     * @throws TransactionException If there is already a transaction started or the driver 
-     * does not support transactions. Note: An exception is raised even when the 
+     *
+     * @throws TransactionException If there is already a transaction started or the driver
+     * does not support transactions. Note: An exception is raised even when the
      * PDO::ATTR_ERRMODE attribute is not PDO::ERRMODE_EXCEPTION.
-     * 
+     *
      * @return bool — TRUE on success or FALSE on failure.
      */
     public function beginTransaction(): bool
@@ -253,7 +252,7 @@ class Connection
 
     /**
      * Checks if inside a transaction
-     * 
+     *
      * @return bool — TRUE if a transaction is currently active, and FALSE if not.
      */
     public function inTransaction(): bool
@@ -262,11 +261,11 @@ class Connection
     }
 
     /**
-     * Commits a transaction, returning the database connection to autocommit mode 
+     * Commits a transaction, returning the database connection to autocommit mode
      * until the next call to beginTransaction() starts a new transaction.
-     * 
+     *
      * Calls PDO::commit()
-     * 
+     *
      * @return bool — TRUE on success or FALSE on failure.
      * @throws TransactionException — if there is no active transaction.
      * @link https://php.net/manual/en/pdo.commit.php
@@ -282,9 +281,9 @@ class Connection
 
     /**
      * Rolls back a transaction
-     * 
+     *
      * Calls PDO::rollBack()
-     * 
+     *
      * @return bool — TRUE on success or FALSE on failure.
      * @throws TransactionException — if there is no active transaction.
      * @link https://php.net/manual/en/pdo.rollback.php

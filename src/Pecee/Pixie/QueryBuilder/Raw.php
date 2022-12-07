@@ -9,7 +9,6 @@ namespace Pecee\Pixie\QueryBuilder;
  */
 class Raw
 {
-
     /**
      * @var string
      */

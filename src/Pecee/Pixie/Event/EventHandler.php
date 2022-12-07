@@ -13,7 +13,6 @@ use Pecee\Pixie\QueryBuilder\Raw;
  */
 class EventHandler
 {
-
     /**
      * Event-type that fires before each query
      *

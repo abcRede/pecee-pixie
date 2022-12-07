@@ -1,7 +1,10 @@
 <?php
+
 namespace Pecee\Pixie\ConnectionAdapters;
+
 use PDO;
 use Pecee\Pixie\Exception;
+
 /**
  * Class Sqlserver
  *
@@ -36,7 +39,7 @@ class Sqlserver extends BaseAdapter
             $connectionString .= ";port={$config['port']}";
         }
         try {
-            $connection = new PDO($connectionString, $config['username'], $config['password'], $config['options']);            
+            $connection = new PDO($connectionString, $config['username'], $config['password'], $config['options']);
         } catch (\PDOException $e) {
             throw Exception::create($e, $this->getQueryAdapterClass());
         }

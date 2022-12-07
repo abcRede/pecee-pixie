@@ -43,7 +43,7 @@ class Transaction extends QueryBuilderHandler
      * @throws \Pecee\Pixie\Exceptions\NotNullException
      * @throws TransactionHaltException
      */
-    public function commit() : void
+    public function commit(): void
     {
         try {
             $this->pdo()->commit();
@@ -68,7 +68,7 @@ class Transaction extends QueryBuilderHandler
      * @throws \Pecee\Pixie\Exceptions\NotNullException
      * @throws TransactionHaltException
      */
-    public function rollBack() : void
+    public function rollBack(): void
     {
         try {
             $this->pdo()->rollBack();
@@ -99,7 +99,6 @@ class Transaction extends QueryBuilderHandler
     public function statement(string $sql, array $bindings = []): array
     {
         if ($this->transactionStatement === null && $this->pdo()->inTransaction() === true) {
-
             $results = parent::statement($sql, $bindings);
             $this->transactionStatement = $results[0];
 
@@ -108,5 +107,4 @@ class Transaction extends QueryBuilderHandler
 
         return parent::statement($sql, $bindings);
     }
-
 }

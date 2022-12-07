@@ -9,7 +9,6 @@ namespace Pecee\Pixie;
  */
 class QueryBuilderTest extends TestCase
 {
-
     public function testFalseBoolWhere()
     {
         $result = $this->builder->table('test')->where('id', '=', false);
@@ -91,7 +90,6 @@ class QueryBuilderTest extends TestCase
         $query = $this->builder->table('person')->where('name', [1, null, 3]);
 
         $this->assertEquals('SELECT * FROM `cb_person` WHERE `name` = (1, NULL, 3)', $query->getQuery()->getRawSql());
-
     }
 
     public function testWhereBetween()
@@ -104,7 +102,6 @@ class QueryBuilderTest extends TestCase
 
     public function testUnion()
     {
-
         $qb = $this->builder;
         $firstQuery =
             $qb
@@ -141,7 +138,6 @@ class QueryBuilderTest extends TestCase
             'SELECT `id`, `name` FROM ((SELECT * FROM `cb_people` WHERE `gender` = \'male\') UNION (SELECT * FROM `cb_people` WHERE `name` IS NULL)) AS `people`',
             $main->getQuery()->getRawSql()
         );
-
     }
 
     public function testQueryOverwrite()
@@ -156,18 +152,18 @@ class QueryBuilderTest extends TestCase
             'SELECT `id`, `name` FROM ((SELECT * FROM `cb_people` WHERE `gender` = \'male\') UNION (SELECT * FROM `cb_people` WHERE `name` IS NULL)) AS `people`',
             $main->getQuery()->getRawSql()
         );
-
     }
-  
+
     /**
      * @throws \Pecee\Pixie\Exception
      */
-    public function testGetColumns(){
+    public function testGetColumns()
+    {
         $query = $this->builder
             ->newQuery()
             ->table(['foo_table','foo'])
-            ->leftJoin(['bar_table','bar'],'foo._barId','=','bar.id')
-            ->leftJoin(['baz_table','baz'],'bar._bazId','=','baz.id')
+            ->leftJoin(['bar_table','bar'], 'foo._barId', '=', 'bar.id')
+            ->leftJoin(['baz_table','baz'], 'bar._bazId', '=', 'baz.id')
             ->select([
                 'foo.*',
                 'bar.id'=>'barId',
@@ -178,7 +174,7 @@ class QueryBuilderTest extends TestCase
         $this->assertEquals([
             'barId' =>  'cb_bar.id',
             'name'  =>  'name'
-        ],$query->getColumns());
+        ], $query->getColumns());
     }
 
     public function testQueryPartFor()
@@ -188,8 +184,8 @@ class QueryBuilderTest extends TestCase
         $this->assertEquals('SELECT * FROM `cb_users` FOR UPDATE', $query->getQuery()->getRawSql());
     }
 
-    public function testRemoveQuery() {
-
+    public function testRemoveQuery()
+    {
         $builder = $this->builder->newQuery()->table('test')->setOverwriteEnabled(true);
 
         $query = $builder
@@ -202,7 +198,5 @@ class QueryBuilderTest extends TestCase
         $query = $builder->whereNull('parent_id');
 
         $this->assertEquals('SELECT * FROM `cb_test` WHERE `parent_id` IS NULL LIMIT 5', $query->getQuery()->getRawSql());
-
     }
-
 }

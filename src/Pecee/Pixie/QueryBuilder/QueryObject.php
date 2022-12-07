@@ -87,12 +87,12 @@ class QueryObject
         foreach ($params as $key => $value) {
             $keys[] = '/' . (\is_string($key) ? ':' . $key : '[?]') . '/';
 
-            if($value instanceof Raw) {
+            if ($value instanceof Raw) {
                 continue;
             }
 
             // Try to parse object-types
-            if(\is_object($value) === true) {
+            if (\is_object($value) === true) {
                 $value = (string)$value;
             }
 
@@ -122,5 +122,4 @@ class QueryObject
     {
         return $this->connection;
     }
-
 }

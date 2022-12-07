@@ -47,13 +47,11 @@ class Mysql extends BaseAdapter
         }
 
         try {
-
             $connection = new PDO($connectionString, $config['username'], $config['password'], $config['options']);
 
             if (isset($config['charset']) === true) {
                 $connection->prepare("SET NAMES '{$config['charset']}'")->execute();
             }
-
         } catch (\PDOException $e) {
             throw Exception::create($e, $this->getQueryAdapterClass());
         }

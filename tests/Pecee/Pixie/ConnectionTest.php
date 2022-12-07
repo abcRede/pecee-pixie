@@ -1,4 +1,6 @@
-<?php namespace Pecee\Pixie;
+<?php
+
+namespace Pecee\Pixie;
 
 use Mockery as m;
 use Pecee\Pixie\ConnectionAdapters\IConnectionAdapter;

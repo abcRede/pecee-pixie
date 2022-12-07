@@ -47,9 +47,7 @@ class Exception extends \Exception
      */
     public static function create(\Exception $e, string $adapterName = null, QueryObject $query = null)
     {
-
         if ($e instanceof \PDOException) {
-
             /**
              * @var string|null $errorSqlState
              * @var integer|null $errorCode
@@ -114,11 +112,11 @@ class Exception extends \Exception
                     }
 
                     switch ($errorSqlState) {
-                        case null;
-                            if ($errorCode === 14) {
-                                return new ConnectionException($errorMsg, 1, $e->getPrevious(), $query);
-                            }
-                            break;
+                        case null:
+                        if ($errorCode === 14) {
+                            return new ConnectionException($errorMsg, 1, $e->getPrevious(), $query);
+                        }
+                        break;
                         case 'HY000':
                         case '23000':
                             if (preg_match('/no such column:/', $errorMsg) === 1) {

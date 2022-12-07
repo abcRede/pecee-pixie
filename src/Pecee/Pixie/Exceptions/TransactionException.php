@@ -2,6 +2,6 @@
 
 namespace Pecee\Pixie\Exceptions;
 
-class TransactionException extends \Exception {
-
+class TransactionException extends \Exception
+{
 }

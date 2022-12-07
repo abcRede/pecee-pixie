@@ -11,5 +11,4 @@ use Pecee\Pixie\Exception;
  */
 class DuplicateColumnException extends Exception
 {
-
 }

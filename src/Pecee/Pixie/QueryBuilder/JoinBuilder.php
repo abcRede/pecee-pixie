@@ -61,5 +61,4 @@ class JoinBuilder extends QueryBuilderHandler
     {
         return $this->on($key, $operator, $value, 'OR');
     }
-
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Pecee\Pixie\QueryBuilder\Adapters;
 
 use Pecee\Pixie\Exception;
@@ -135,7 +136,7 @@ class Sqlserver extends BaseAdapter
 
         $columnsQuery = '';
 
-        if($columns !== null) {
+        if ($columns !== null) {
             $columnsQuery = $this->arrayStr($columns);
         }
 

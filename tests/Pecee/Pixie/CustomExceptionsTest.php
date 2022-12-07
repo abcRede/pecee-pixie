@@ -12,7 +12,6 @@ use Pecee\Pixie\Exceptions\TransactionException;
 
 class CustomExceptionsTest extends TestCase
 {
-
     /**
      * @return \Pecee\Pixie\QueryBuilder\QueryBuilderHandler
      * @throws \Pecee\Pixie\Exception
@@ -33,7 +32,6 @@ class CustomExceptionsTest extends TestCase
 
     public function testConnectionException()
     {
-
         // test error code 2002
         try {
             (new \Pecee\Pixie\Connection('mysql', [
@@ -82,7 +80,6 @@ class CustomExceptionsTest extends TestCase
             ]))->connect();
             throw new \RuntimeException('check');
         } catch (\Exception $e) {
-
             // Note: seems like some MySQL instances returns 1044 other 1045.
             $this->validateException($e, ConnectionException::class, 1044, 1045, 2002);
         }
@@ -97,12 +94,10 @@ class CustomExceptionsTest extends TestCase
         } catch (\Exception $e) {
             $this->validateException($e, ConnectionException::class, 1);
         }
-
     }
 
     public function testTableNotFoundException()
     {
-
         $mysqlBuilder = $this->getQueryBuilder();
 
         try {
@@ -120,12 +115,10 @@ class CustomExceptionsTest extends TestCase
         } catch (\Exception $e) {
             $this->validateException($e, TableNotFoundException::class, 1);
         }
-
     }
 
     public function testColumnNotFoundException()
     {
-
         $builder = $this->getQueryBuilder();
 
         try {
@@ -143,12 +136,10 @@ class CustomExceptionsTest extends TestCase
         } catch (\Exception $e) {
             $this->validateException($e, ColumnNotFoundException::class, 1);
         }
-
     }
 
     public function testDuplicateEntryException()
     {
-
         $builder = $this->getQueryBuilder();
 
         try {
@@ -170,7 +161,6 @@ class CustomExceptionsTest extends TestCase
         } catch (\Exception $e) {
             $this->validateException($e, DuplicateEntryException::class, 1);
         }
-
     }
 
     public function testQueryAggregateColumnNotFoundException()
@@ -252,29 +242,26 @@ class CustomExceptionsTest extends TestCase
         }
     }
 
-    public function testTransactionExceptions(){
+    public function testTransactionExceptions()
+    {
         $connection = $this->getLiveConnection()->getConnection();
         try {
             $connection->beginTransaction();
             $connection->beginTransaction();
-        }
-        catch(\Exception $e){
+        } catch(\Exception $e) {
             $this->assertEquals(TransactionException::class, \get_class($e));
         }
 
         try {
             $connection->commit();
-        }
-        catch(\Exception $e){
+        } catch(\Exception $e) {
             $this->assertEquals(TransactionException::class, \get_class($e));
         }
 
         try {
             $connection->rollBack();
-        }
-        catch(\Exception $e){
+        } catch(\Exception $e) {
             $this->assertEquals(TransactionException::class, \get_class($e));
         }
     }
-
 }

@@ -79,7 +79,7 @@ class EventArguments
      *
      * @return string|null
      */
-    public function getInsertId() : ?string
+    public function getInsertId(): ?string
     {
         return $this->arguments['insert_id'] ?? null;
     }
@@ -89,7 +89,7 @@ class EventArguments
      *
      * @return float|null
      */
-    public function getExecutionTime() : ?float
+    public function getExecutionTime(): ?float
     {
         return $this->arguments['execution_time'] ?? null;
     }
@@ -103,5 +103,4 @@ class EventArguments
     {
         return $this->arguments;
     }
-
 }

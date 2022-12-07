@@ -1,4 +1,5 @@
 <?php
+
 namespace Pecee\Pixie\Exceptions;
 
 use Pecee\Pixie\Exception;
@@ -10,5 +11,4 @@ use Pecee\Pixie\Exception;
  */
 class NotNullException extends Exception
 {
-
 }

@@ -285,8 +285,8 @@ class QueryBuilderHandler implements IQueryBuilderHandler
     }
 
     /**
-     * Returns the first row. Throws a RecordNotFoundException if 
-     * the record is not found.  
+     * Returns the first row. Throws a RecordNotFoundException if
+     * the record is not found.
      *
      * @throws \Pecee\Pixie\Exception
      * @throws \Pecee\Pixie\Exceptions\ColumnNotFoundException
@@ -338,7 +338,6 @@ class QueryBuilderHandler implements IQueryBuilderHandler
         $startTime = microtime(true);
 
         if ($this->pdoStatement === null) {
-
             [$this->pdoStatement, $executionTime] = $this->statement(
                 $queryObject->getSql(),
                 $queryObject->getBindings()
@@ -491,7 +490,6 @@ class QueryBuilderHandler implements IQueryBuilderHandler
      */
     protected function parseParameterType($value): int
     {
-
         if ($value === null) {
             return PDO::PARAM_NULL;
         }
@@ -1243,7 +1241,6 @@ class QueryBuilderHandler implements IQueryBuilderHandler
         // If the current batch insert is not in a transaction, we create one...
 
         if ($this->pdo()->inTransaction() === false) {
-
             $this->transaction(function (Transaction $transaction) use (&$insertIds, $data, $type): void {
                 foreach ($data as $subData) {
                     $insertIds[] = $transaction->doInsert($subData, $type);
@@ -1286,11 +1283,9 @@ class QueryBuilderHandler implements IQueryBuilderHandler
             // If no errors have been thrown or the transaction wasn't completed within the closure, commit the changes
             $this->pdo()->commit();
         } catch (TransactionHaltException $e) {
-
             // Commit or rollback behavior has been triggered in the closure
             return $queryTransaction;
         } catch (\Exception $e) {
-
             // Something went wrong. Rollback and throw Exception
             if ($this->pdo()->inTransaction() === true) {
                 $this->pdo()->rollBack();
@@ -1757,15 +1752,15 @@ class QueryBuilderHandler implements IQueryBuilderHandler
 
     /**
      * Update or insert key/value array
-     * 
-     * This method is a shorthand for inserting or updating a record. Unlike updateOrInsert() method, it will not 
-     * perform any additional query to the database, instead it will perform an update only if the key is present 
-     * on data array and it's not NULL, otherwise an insert will be performed. 
-     * 
+     *
+     * This method is a shorthand for inserting or updating a record. Unlike updateOrInsert() method, it will not
+     * perform any additional query to the database, instead it will perform an update only if the key is present
+     * on data array and it's not NULL, otherwise an insert will be performed.
+     *
      * You can pass more than one key column in case of tables that have composite keys.
-     * 
+     *
      * You cannot insert a row using a specific ID using this method, as it will try to update the record instead.
-     * 
+     *
      * If no key is supplied, the default 'id' will be used.
      *
      * @param array $data

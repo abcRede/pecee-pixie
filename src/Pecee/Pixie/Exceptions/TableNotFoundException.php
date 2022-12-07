@@ -11,5 +11,4 @@ use Pecee\Pixie\Exception;
  */
 class TableNotFoundException extends Exception
 {
-
 }
