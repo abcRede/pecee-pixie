@@ -63,6 +63,9 @@
     "test": [
       "@phpstan"
     ],
+    "phpunit": [
+      "vendor/bin/phpunit"
+    ],
     "phpstan": "phpstan analyse"
   }
 }
